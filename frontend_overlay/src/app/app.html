@@ -1,0 +1,65 @@
+<main class="shell">
+  <header>
+    <h1>IoMT Intrusion Detection: Attack-Stage Classifier</h1>
+    <p>MedSec-25 research prototype · Random Forest · {{ fields.length }} network-flow features</p>
+  </header>
+
+  @if (deployedStatic) {
+    <aside class="notice">
+      Static GitHub Pages demonstration only. Python/Flask does not run here, so only the stored
+      results of the example flows can be shown. Live predictions need Flask and Angular running locally.
+    </aside>
+  }
+
+  <section>
+    <h2>1. Load an example flow</h2>
+    <div class="samples">
+      @for (s of samples; track s.label) {
+        <button type="button" (click)="loadSample($index)" [class.active]="loadedSample() === $index">{{ s.label }}</button>
+      }
+    </div>
+  </section>
+
+  <section>
+    <h2>2. Flow features</h2>
+    <div class="grid">
+      @for (f of fields; track f.name) {
+        <label class="field">
+          <span>{{ f.label }}</span>
+          <input type="number" step="any" [(ngModel)]="values[f.name]" [placeholder]="f.hint" />
+        </label>
+      }
+    </div>
+  </section>
+
+  <section class="actions">
+    <button type="button" class="primary" (click)="submit()" [disabled]="loading()">
+      {{ loading() ? 'Running...' : (deployedStatic ? 'Show stored demo result' : 'Run local prediction') }}
+    </button>
+    <button type="button" (click)="clear()">Clear</button>
+  </section>
+
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  }
+
+  @if (result(); as r) {
+    <section class="result">
+      <h2>Predicted attack stage: {{ r.prediction }}</h2>
+      <p>Confidence {{ (r.confidence * 100).toFixed(1) }}%
+        @if (isDemo()) { · stored result computed locally by the developer }</p>
+      @for (b of bars(); track b.name) {
+        <div class="bar-row">
+          <span class="bar-name">{{ b.name }}</span>
+          <span class="bar"><span class="fill" [style.width.%]="b.value * 100"></span></span>
+          <span class="bar-val">{{ (b.value * 100).toFixed(1) }}%</span>
+        </div>
+      }
+    </section>
+  }
+
+  <footer>
+    Research/teaching prototype. Trained on a public dataset with a random split; each attack class was recorded
+    in a separate session, so real-world performance is likely lower. Not a security product.
+  </footer>
+</main>
